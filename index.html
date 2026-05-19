@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="おうちケア">
+<title>おうちケア</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=DM+Serif+Display&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EEF4FB;--ww:#F5F9FF;
+  --blue:#4A7DBF;--bluedark:#2C5A99;--bluepale:#D8E8F8;
+  --acc:#C4714A;--accl:#E8C4A0;
+  --ch:#3A2A1A;--mg:#6B7A8A;--bd:#C8D8EC;
+  --dbg:#E8F2E8;--dt:#6A9A6A;--sh:rgba(44,80,140,0.08)
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Zen Kaku Gothic New',sans-serif;background:var(--bg);color:var(--ch);min-height:100vh;min-height:-webkit-fill-available;overflow-x:hidden}
+/* HEADER */
+.hdr{background:var(--ww);border-bottom:1px solid var(--bd);padding:52px 20px 14px;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.hdr-top{display:flex;align-items:baseline;gap:10px;margin-bottom:4px}
+.apptitle{font-family:'DM Serif Display',serif;font-size:26px;color:var(--bluedark);letter-spacing:-0.5px}
+.datelabel{font-size:12px;color:var(--mg);font-weight:500}
+.pb-wrap{background:var(--bluepale);border-radius:99px;height:5px;margin-top:10px;overflow:hidden}
+.pb-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--bluedark));border-radius:99px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+.pb-lbl{font-size:11px;color:var(--mg);margin-top:5px;text-align:right}
+/* TABS */
+.tabs{display:flex;background:var(--ww);border-bottom:1px solid var(--bd);padding:0 16px;position:sticky;top:110px;z-index:99}
+.tab{flex:1;padding:9px 4px;text-align:center;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;letter-spacing:.02em;color:var(--mg);cursor:pointer;border:none;background:none;border-bottom:2.5px solid transparent;transition:all .2s}
+.tab.active{color:var(--bluedark);border-bottom-color:var(--bluedark)}
+/* MAIN */
+.main{padding:16px;padding-bottom:100px}
+.page{display:none}
+.page.active{display:block;animation:fd .3s ease}
+@keyframes fd{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+/* RESET BAR */
+.reset-bar{background:var(--ww);border-radius:14px;padding:9px 12px;margin-bottom:14px;display:flex;align-items:center;gap:8px;box-shadow:0 1px 6px var(--sh);border:1px solid var(--bd)}
+.reset-bar-icon{font-size:18px}
+.reset-bar-text{flex:1;font-family:'Nunito',sans-serif;font-size:11px;color:var(--mg);font-weight:600}
+.reset-bar-sub{font-size:9px;color:#A0B8D0;display:block;margin-top:1px}
+.reset-btn{font-size:16px;background:linear-gradient(135deg,#E8C4A0,#C4714A);border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(196,113,74,.3);flex-shrink:0}
+/* CATEGORY BLOCK */
+.cat-block{margin-bottom:10px;border-radius:12px;overflow:hidden;box-shadow:0 1px 6px var(--sh)}
+.cat-hdr{display:flex;align-items:center;gap:7px;padding:9px 12px;cursor:pointer;-webkit-user-select:none;user-select:none}
+.cat-icon{font-size:15px}
+.cat-name{font-size:12px;font-weight:700;flex:1}
+.cat-cnt{font-size:10px;color:var(--mg)}
+.cat-arrow{font-size:11px;color:var(--mg);transition:transform .25s;margin-left:2px}
+.cat-arrow.open{transform:rotate(180deg)}
+.cat-body{overflow:hidden;max-height:0;opacity:0;background:var(--ww);padding:0 8px;transition:max-height .3s ease,opacity .25s ease}
+.cat-body.open{max-height:1000px;opacity:1;padding:6px 8px 8px}
+.ch-daily{background:#D6ECFF}.cn-daily{color:#1A5A99}
+.ch-wd{background:#DCF0FF}.cn-wd{color:#1A6A99}
+.ch-sat{background:#D6EED6}.cn-sat{color:#2A6A2A}
+.ch-sun{background:#FFE4E4}.cn-sun{color:#993A2A}
+.ch-weekend{background:#E4D8F8}.cn-weekend{color:#5A3A99}
+.ch-monthstart{background:#D4F0F8}.cn-monthstart{color:#1A6A8A}
+.ch-trimonthly{background:#FFE4EE}.cn-trimonthly{color:#993A5A}
+.ch-special{background:#EDE8F8}.cn-special{color:#4A3A99}
+.ch-custom{background:#FFF3D8}.cn-custom{color:#8A6A1A}
+/* TASK CARD */
+.tw{position:relative;overflow:hidden;border-radius:10px;margin-bottom:6px}
+.del-bg{position:absolute;right:0;top:0;bottom:0;width:65px;background:#FF4D4D;display:flex;align-items:center;justify-content:center;font-size:18px;border-radius:0 10px 10px 0}
+.tc2{background:var(--ww);border-radius:10px;padding:11px 13px;display:flex;align-items:center;gap:10px;border:1px solid var(--bd);cursor:pointer;position:relative;z-index:1;transform:translateX(0);transition:all .25s;-webkit-user-select:none;user-select:none}
+.tc2:active{transform:scale(.97)}
+.tc2.done{background:var(--dbg);border-color:#A8D8A8}
+.tc2.done .tn{text-decoration:line-through;color:var(--dt)}
+.tc2.done .tm2{color:var(--dt)}
+.chk{width:22px;height:22px;border-radius:50%;border:2px solid var(--bd);flex-shrink:0;display:flex;align-items:center;justify-content:center;background:var(--ww);transition:all .25s}
+.tc2.done .chk{background:#6AAA6A;border-color:#6AAA6A}
+.chk svg{opacity:0;transform:scale(.5);transition:all .2s}
+.tc2.done .chk svg{opacity:1;transform:scale(1)}
+.ti{flex:1;min-width:0}
+.tn{font-size:14px;font-weight:500;line-height:1.3;color:var(--ch);transition:all .25s}
+.tm2{font-size:11px;color:var(--mg);margin-top:2px;transition:all .25s}
+/* CALENDAR */
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.cal-nav button{background:var(--ww);border:1.5px solid var(--bd);border-radius:9px;width:34px;height:34px;cursor:pointer;font-size:18px;color:var(--mg);display:flex;align-items:center;justify-content:center}
+.cal-month{font-family:'DM Serif Display',serif;font-size:19px;color:var(--bluedark)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:14px}
+.cal-dow{text-align:center;font-size:11px;font-weight:700;color:var(--mg);padding:4px 0}
+.cal-dow.sun{color:#993A2A}.cal-dow.sat{color:#2A6A2A}
+.cal-day{text-align:center;padding:5px 2px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;min-height:38px;display:flex;flex-direction:column;align-items:center;gap:2px;transition:all .2s}
+.cal-day:hover{background:var(--bluepale)}
+.cal-day.today-d{background:var(--bluedark);color:#fff;font-weight:700}
+.cal-day.today-d .dnum{color:#fff}
+.cal-day.selected-d{background:var(--bluepale);outline:2px solid var(--blue)}
+.cal-day.empty{cursor:default}
+.dnum{font-size:13px;line-height:1}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--acc)}
+.cal-day.today-d .dot{background:#fff}
+.cal-day.sun-d .dnum{color:#993A2A}
+.cal-day.sat-d .dnum{color:#2A6A2A}
+.cal-detail{background:var(--ww);border-radius:13px;padding:14px 16px;box-shadow:0 1px 6px var(--sh)}
+.cal-dtitle{font-size:14px;font-weight:700;color:var(--bluedark);margin-bottom:12px}
+.cal-row{display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid var(--bd)}
+.cal-row:last-child{border-bottom:none}
+.cchk{width:17px;height:17px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.cchk.dc{background:#6AAA6A}.cchk.uc{background:var(--ww);border:1.5px solid var(--bd)}
+.ctname{font-size:13px;flex:1;color:var(--ch)}
+.ctname.dt2{text-decoration:line-through;color:var(--dt)}
+.cbadge{font-size:10px;padding:2px 8px;border-radius:99px;font-weight:700}
+.no-detail{text-align:center;padding:24px;font-size:13px;color:var(--mg)}
+/* MEMO */
+.memo-form{background:var(--ww);border-radius:13px;padding:14px 16px;margin-bottom:16px;box-shadow:0 1px 6px var(--sh)}
+.memo-form textarea,.memo-form input{width:100%;border:1.5px solid var(--bd);border-radius:10px;padding:10px 13px;font-family:inherit;color:var(--ch);background:#EEF3FA;outline:none;resize:none}
+.memo-form textarea{font-size:14px;height:80px}
+.memo-form input{font-size:13px;margin-top:8px}
+.memo-form textarea:focus,.memo-form input:focus{border-color:var(--blue);background:#fff}
+.memo-add-btn{margin-top:10px;width:100%;padding:12px;border-radius:10px;background:var(--bluedark);color:#fff;border:none;font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;cursor:pointer}
+.memo-card{background:var(--ww);border-radius:12px;padding:13px 15px;margin-bottom:10px;box-shadow:0 1px 6px var(--sh);position:relative;border:1px solid var(--bd)}
+.memo-card-text{font-size:14px;line-height:1.6;white-space:pre-wrap;word-break:break-all;color:var(--ch)}
+.memo-card-url{font-size:12px;color:var(--blue);margin-top:5px;word-break:break-all;text-decoration:underline;cursor:pointer}
+.memo-card-date{font-size:11px;color:var(--mg);margin-top:6px}
+.memo-del{position:absolute;top:10px;right:12px;background:none;border:none;font-size:18px;cursor:pointer;color:var(--mg)}
+.memo-empty,.empty-state{text-align:center;padding:40px 20px;font-size:13px;color:var(--mg)}
+/* FAB */
+.fab{position:fixed;bottom:28px;right:20px;z-index:200;width:54px;height:54px;border-radius:50%;background:#DDE6F0;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(44,90,153,.2)}
+.fab-plus{font-size:36px;line-height:1;color:#3A2A1A;font-weight:300;margin-top:-2px;pointer-events:none}
+/* OVERLAY & SHEET */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:300;display:none;align-items:flex-end;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+.ov.open{display:flex}
+.sheet{background:var(--ww);width:100%;border-radius:24px 24px 0 0;padding:20px 20px 50px;max-height:90vh;overflow-y:auto;animation:slideUp .3s cubic-bezier(.4,0,.2,1)}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.sh-hnd{width:36px;height:4px;background:var(--bd);border-radius:99px;margin:0 auto 20px}
+.sh-title{font-family:'DM Serif Display',serif;font-size:20px;color:var(--bluedark);margin-bottom:18px}
+.fr{margin-bottom:13px}
+.fl{font-size:11px;font-weight:700;color:var(--mg);letter-spacing:.06em;margin-bottom:6px;display:block}
+.fi{width:100%;padding:11px 14px;border:1.5px solid var(--bd);border-radius:10px;font-family:inherit;font-size:14px;background:#EEF3FA;color:var(--ch);outline:none}
+.fi:focus{border-color:var(--blue);background:#fff}
+.bp{width:100%;padding:14px;border-radius:12px;background:linear-gradient(135deg,var(--blue),var(--bluedark));color:#fff;border:none;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;margin-top:8px}
+/* カテゴリグリッド */
+.cat-manage-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.cat-edit-btn{font-size:11px;font-weight:700;color:var(--blue);background:none;border:1.5px solid var(--bd);border-radius:99px;padding:4px 12px;cursor:pointer;font-family:inherit}
+.cat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px}
+.cat-chip{padding:9px 4px;border-radius:10px;border:1.5px solid var(--bd);background:#EEF3FA;font-family:inherit;font-size:11px;font-weight:600;color:var(--mg);cursor:pointer;text-align:center;transition:all .2s;line-height:1.4}
+.cat-chip.sel{background:var(--bluedark);border-color:var(--bluedark);color:#fff}
+.cat-chip .chip-icon{font-size:14px;display:block;margin-bottom:2px}
+/* カテゴリ管理パネル */
+.cat-add-form{background:var(--bluepale);border-radius:11px;padding:12px 14px;margin-bottom:10px}
+.cat-add-form-row{display:flex;gap:6px;align-items:center;margin-bottom:7px}
+.fi-sm{flex:1;padding:8px 11px;border:1.5px solid var(--bd);border-radius:9px;font-family:inherit;font-size:13px;background:#fff;color:var(--ch);outline:none}
+.fi-sm:focus{border-color:var(--blue)}
+.cat-emoji-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px}
+.cat-emoji-btn{width:32px;height:32px;border-radius:9px;border:1.5px solid var(--bd);background:#fff;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.cat-emoji-btn.sel-e{background:var(--bluepale);border-color:var(--blue)}
+.cat-add-submit{width:100%;padding:9px;border-radius:9px;background:var(--bluedark);color:#fff;border:none;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer}
+.cat-manage-list{background:var(--bluepale);border-radius:11px;padding:8px 12px;margin-bottom:10px}
+.cat-manage-item{display:flex;align-items:center;gap:8px;padding:7px 4px;border-bottom:1px solid var(--bd)}
+.cat-manage-item:last-child{border-bottom:none}
+.cmi-icon{font-size:15px}
+.cmi-name{font-size:13px;flex:1;color:var(--ch)}
+.cmi-del{background:none;border:none;font-size:15px;cursor:pointer;color:#CC4444;padding:2px 4px}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div class="hdr-top"><div class="apptitle">おうちケア</div><div class="datelabel" id="dlbl"></div></div>
+  <div class="pb-wrap"><div class="pb-fill" id="pbf" style="width:0%"></div></div>
+  <div class="pb-lbl" id="pbl">読み込み中...</div>
+</div>
+<div class="tabs">
+  <button class="tab active" data-page="today">📋 今日</button>
+  <button class="tab" data-page="record">📅 記録</button>
+  <button class="tab" data-page="memo">📝 メモ</button>
+</div>
+<div class="main">
+  <div class="page active" id="page-today">
+    <div class="reset-bar">
+      <span class="reset-bar-icon">🧹</span>
+      <div class="reset-bar-text">今日のチェックをリセット<span class="reset-bar-sub">タップするとすべて未完了に戻ります</span></div>
+      <button class="reset-btn" onclick="resetToday()">✨</button>
+    </div>
+    <div id="todayList"></div>
+  </div>
+  <div class="page" id="page-record">
+    <div class="cal-nav">
+      <button onclick="calPrev()">‹</button>
+      <div class="cal-month" id="calMonthLbl"></div>
+      <button onclick="calNext()">›</button>
+    </div>
+    <div class="cal-grid" id="calGrid"></div>
+    <div id="calDetail"></div>
+  </div>
+  <div class="page" id="page-memo">
+    <div class="memo-form">
+      <textarea id="memoText" placeholder="お掃除メモを入力（ヒント、手順、気づきなど）"></textarea>
+      <input id="memoUrl" placeholder="URL（任意）https://...">
+      <button class="memo-add-btn" onclick="addMemo()">メモを保存</button>
+    </div>
+    <div id="memoList"></div>
+  </div>
+</div>
+<button class="fab" id="fabBtn" onclick="openSheet()"><span class="fab-plus">+</span></button>
+<div class="ov" id="ov" onclick="handleOv(event)">
+  <div class="sheet">
+    <div class="sh-hnd"></div>
+    <div class="sh-title">新しい家事</div>
+    <div class="fr"><label class="fl">家事の名前</label><input class="fi" id="iName" placeholder="例：洗濯機を回す" maxlength="30"></div>
+    <div class="fr"><label class="fl">メモ（任意）</label><input class="fi" id="iNote" placeholder="例：タオル類も忘れずに" maxlength="40"></div>
+    <div class="fr">
+      <div class="cat-manage-bar">
+        <label class="fl" style="margin:0">カテゴリ</label>
+        <button class="cat-edit-btn" onclick="toggleCatManage()">＋ カテゴリを編集</button>
+      </div>
+      <div id="catManagePanel" style="display:none">
+        <div class="cat-add-form">
+          <div style="font-size:11px;font-weight:700;color:var(--mg);margin-bottom:7px">新しいカテゴリを追加</div>
+          <div class="cat-add-form-row"><input class="fi-sm" id="newCatName" placeholder="カテゴリ名（例：週1回）" maxlength="12"></div>
+          <div class="cat-emoji-row" id="emojiPicker"></div>
+          <button class="cat-add-submit" onclick="addCategory()">追加する</button>
+        </div>
+        <div class="cat-manage-list" id="catManageList"></div>
+      </div>
+      <div class="cat-grid" id="catChipGrid"></div>
+    </div>
+    <button class="bp" onclick="addTask()">追加する ✦</button>
+  </div>
+</div>
+<script>
+const WD=['日','月','火','水','木','金','土'];
+const EMOJIS=['🌅','📅','🌿','🧹','✨','🪣','🛁','🍽','🪟','🌱','📦','⚡','🧺','🛒','💧','🪴','🔧','🗑','🐾','📋'];
+const DEFAULT_CATS=[
+  {id:'daily',label:'毎日の家事',icon:'🌅',hc:'ch-daily',nc:'cn-daily',bg:'#D6ECFF',col:'#1A5A99',fixed:true},
+  {id:'mon',label:'月曜日の家事',icon:'📅',hc:'ch-wd',nc:'cn-wd',bg:'#DCF0FF',col:'#1A6A99',fixed:true},
+  {id:'tue',label:'火曜日の家事',icon:'📅',hc:'ch-wd',nc:'cn-wd',bg:'#DCF0FF',col:'#1A6A99',fixed:true},
+  {id:'wed',label:'水曜日の家事',icon:'📅',hc:'ch-wd',nc:'cn-wd',bg:'#DCF0FF',col:'#1A6A99',fixed:true},
+  {id:'thu',label:'木曜日の家事',icon:'📅',hc:'ch-wd',nc:'cn-wd',bg:'#DCF0FF',col:'#1A6A99',fixed:true},
+  {id:'fri',label:'金曜日の家事',icon:'📅',hc:'ch-wd',nc:'cn-wd',bg:'#DCF0FF',col:'#1A6A99',fixed:true},
+  {id:'sat',label:'土曜日の家事',icon:'📅',hc:'ch-sat',nc:'cn-sat',bg:'#D6EED6',col:'#2A6A2A',fixed:true},
+  {id:'sun',label:'日曜日の家事',icon:'📅',hc:'ch-sun',nc:'cn-sun',bg:'#FFE4E4',col:'#993A2A',fixed:true},
+  {id:'weekend',label:'週末の家事',icon:'🌿',hc:'ch-weekend',nc:'cn-weekend',bg:'#E4D8F8',col:'#5A3A99',fixed:true},
+  {id:'monthstart',label:'月初の家事',icon:'🌱',hc:'ch-monthstart',nc:'cn-monthstart',bg:'#D4F0F8',col:'#1A6A8A',fixed:true},
+  {id:'trimonthly',label:'３ヶ月ごとの家事',icon:'📦',hc:'ch-trimonthly',nc:'cn-trimonthly',bg:'#FFE4EE',col:'#993A5A',fixed:true},
+  {id:'special',label:'臨時の家事',icon:'⚡',hc:'ch-special',nc:'cn-special',bg:'#EDE8F8',col:'#4A3A99',fixed:true},
+];
+let categories=[...DEFAULT_CATS],catOpen={};
+let tasks=[],checks={},memos=[],selFreq='daily',selEmoji='✨',catManageOpen=false;
+const now=new Date(),todayKey=dk(now),dow=now.getDay();
+let calYear=now.getFullYear(),calMonth=now.getMonth(),calSelKey=todayKey;
+function dk(d){return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;}
+function uid(){return Math.random().toString(36).slice(2,10);}
+function save(){localStorage.setItem('kT8',JSON.stringify(tasks));localStorage.setItem('kC8',JSON.stringify(checks));localStorage.setItem('kM8',JSON.stringify(memos));localStorage.setItem('kCAT8',JSON.stringify(categories.filter(c=>!c.fixed)));}
+function load(){
+  tasks=JSON.parse(localStorage.getItem('kT8')||'[]');
+  checks=JSON.parse(localStorage.getItem('kC8')||'{}');
+  memos=JSON.parse(localStorage.getItem('kM8')||'[]');
+  const custom=JSON.parse(localStorage.getItem('kCAT8')||'[]');
+  categories=[...DEFAULT_CATS,...custom];
+  categories.forEach(c=>{if(!(c.id in catOpen))catOpen[c.id]=true;});
+  if(!tasks.length)seed();
+}
+function getCat(id){return categories.find(c=>c.id===id)||{label:id,icon:'📋',hc:'ch-custom',nc:'cn-custom',bg:'#FFF3D8',col:'#8A6A1A'};}
+function seed(){
+  [{n:'洗濯機を回す',m:'朝イチで！',f:'daily'},{n:'キッチンをひと拭き',m:'',f:'daily'},{n:'お風呂の換気',m:'',f:'daily'},
+   {n:'ゴミをまとめる',m:'可燃',f:'mon'},{n:'ゴミをまとめる',m:'不燃',f:'thu'},
+   {n:'トイレ掃除',m:'',f:'wed'},{n:'窓を開けて換気',m:'',f:'fri'},
+   {n:'掃除機をかける',m:'リビング＆廊下',f:'weekend'},{n:'シーツを交換する',m:'',f:'sat'},
+   {n:'冷蔵庫の中を確認',m:'期限切れチェック',f:'sun'},
+   {n:'水回りを磨く',m:'洗面台＆蛇口',f:'monthstart'},{n:'換気扇フィルター交換',m:'',f:'trimonthly'}
+  ].forEach(x=>tasks.push({id:uid(),name:x.n,note:x.m,freq:x.f}));
+  save();
+}
+function ck(id,key){return id+'_'+(key||todayKey);}
+function isDone(id,key){return !!checks[ck(id,key)];}
+function isActiveOn(t,d){
+  const dw=d.getDay(),dm2=d.getDate();
+  switch(t.freq){
+    case'daily':return true;
+    case'mon':return dw===1;case'tue':return dw===2;case'wed':return dw===3;
+    case'thu':return dw===4;case'fri':return dw===5;case'sat':return dw===6;case'sun':return dw===0;
+    case'weekend':return dw===0||dw===6;
+    case'monthstart':return dm2<=3;
+    case'trimonthly':{const m=d.getMonth()+1;return dm2<=3&&m%3===1;}
+    case'special':return true;
+    default:return true;
+  }
+}
+function isActiveToday(t){return isActiveOn(t,now);}
+function toggleCatOpen(freq){
+  catOpen[freq]=catOpen[freq]===false?true:false;
+  const body=document.getElementById('catbody-'+freq);
+  const arrow=document.getElementById('catarrow-'+freq);
+  if(body){body.classList.toggle('open',catOpen[freq]!==false);arrow.classList.toggle('open',catOpen[freq]!==false);}
+}
+function renderToday(){
+  const ORDER=categories.map(c=>c.id);
+  let html='',total=0,done=0;
+  ORDER.forEach(freq=>{
+    const list=tasks.filter(t=>t.freq===freq&&isActiveToday(t));
+    if(!list.length)return;
+    const cat=getCat(freq),dc=list.filter(t=>isDone(t.id)).length;
+    total+=list.length;done+=dc;
+    const isOpen=catOpen[freq]!==false;
+    html+=`<div class="cat-block">
+      <div class="cat-hdr ${cat.hc}" onclick="toggleCatOpen('${freq}')">
+        <span class="cat-icon">${cat.icon}</span>
+        <span class="cat-name ${cat.nc}">${cat.label}</span>
+        <span class="cat-cnt">${dc}/${list.length}</span>
+        <span class="cat-arrow${isOpen?' open':''}" id="catarrow-${freq}">▼</span>
+      </div>
+      <div class="cat-body${isOpen?' open':''}" id="catbody-${freq}">
+        ${list.map(t=>cardH(t,todayKey)).join('')}
+      </div>
+    </div>`;
+  });
+  if(!html)html=`<div class="empty-state">🎉<br>今日のタスクはありません</div>`;
+  document.getElementById('todayList').innerHTML=html;
+  const pct=total?Math.round(done/total*100):0;
+  document.getElementById('pbf').style.width=pct+'%';
+  document.getElementById('pbl').textContent=total?`今日 ${done} / ${total} 完了 (${pct}%)`:'タスクなし';
+  document.getElementById('dlbl').textContent=`${now.getMonth()+1}月${now.getDate()}日（${WD[dow]}）`;
+  initSwipe();
+}
+function cardH(t,key){
+  const d=isDone(t.id,key);
+  const nt=t.note?`<div class="tm2">${t.note}</div>`:'';
+  return `<div class="tw" id="w${t.id}${key}"><div class="del-bg">🗑</div>
+    <div class="tc2${d?' done':''}" id="c${t.id}${key}" onclick="toggle('${t.id}','${key}')">
+      <div class="chk"><svg width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M2.5 7L5.5 10L11.5 4" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="ti"><div class="tn">${t.name}</div>${nt}</div>
+    </div></div>`;
+}
+function toggle(id,key){
+  const k=id+'_'+(key||todayKey);
+  if(checks[k])delete checks[k];else checks[k]=true;
+  save();
+  if(key===todayKey)renderToday();
+  else renderCalDetail(calSelKey);
+}
+function resetToday(){Object.keys(checks).filter(k=>k.endsWith('_'+todayKey)).forEach(k=>delete checks[k]);save();renderToday();}
+function renderCal(){
+  const fd=new Date(calYear,calMonth,1).getDay(),ld=new Date(calYear,calMonth+1,0).getDate();
+  document.getElementById('calMonthLbl').textContent=`${calYear}年${calMonth+1}月`;
+  let h='';
+  ['日','月','火','水','木','金','土'].forEach((d,i)=>{h+=`<div class="cal-dow${i===0?' sun':i===6?' sat':''}">${d}</div>`;});
+  for(let i=0;i<fd;i++)h+=`<div class="cal-day empty"></div>`;
+  for(let d=1;d<=ld;d++){
+    const date=new Date(calYear,calMonth,d),dw=date.getDay(),key=dk(date);
+    const isT=key===todayKey,isSel=key===calSelKey&&!isT;
+    const hasDone=tasks.some(t=>isActiveOn(t,date)&&isDone(t.id,key));
+    h+=`<div class="cal-day${dw===0?' sun-d':dw===6?' sat-d':''}${isT?' today-d':''}${isSel?' selected-d':''}" onclick="selectDay('${key}')">
+      <span class="dnum">${d}</span>${hasDone?`<span class="dot"></span>`:''}
+    </div>`;
+  }
+  document.getElementById('calGrid').innerHTML=h;
+  renderCalDetail(calSelKey);
+}
+function selectDay(key){calSelKey=key;renderCal();}
+function renderCalDetail(key){
+  const p=key.split('-'),d=new Date(+p[0],+p[1]-1,+p[2]),dw=d.getDay();
+  const active=tasks.filter(t=>isActiveOn(t,d));
+  if(!active.length){document.getElementById('calDetail').innerHTML=`<div class="cal-detail"><div class="no-detail">この日のタスクはありません</div></div>`;return;}
+  const doneList=active.filter(t=>isDone(t.id,key)),undoneList=active.filter(t=>!isDone(t.id,key));
+  let h=`<div class="cal-detail"><div class="cal-dtitle">📅 ${p[1]}月${p[2]}日（${WD[dw]}）<span style="font-size:12px;font-weight:400;color:var(--mg);margin-left:8px">${doneList.length}/${active.length}完了</span></div>`;
+  [...undoneList,...doneList].forEach(t=>{
+    const dn=isDone(t.id,key),cat=getCat(t.freq);
+    h+=`<div class="cal-row">
+      <div class="cchk ${dn?'dc':'uc'}">${dn?`<svg width="10" height="10" viewBox="0 0 14 14" fill="none"><path d="M2.5 7L5.5 10L11.5 4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`:''}</div>
+      <div class="ctname${dn?' dt2':''}">${t.name}</div>
+      <span class="cbadge" style="background:${cat.bg};color:${cat.col}">${cat.icon}</span>
+    </div>`;
+  });
+  h+='</div>';
+  document.getElementById('calDetail').innerHTML=h;
+}
+function calPrev(){calMonth--;if(calMonth<0){calMonth=11;calYear--;}renderCal();}
+function calNext(){calMonth++;if(calMonth>11){calMonth=0;calYear++;}renderCal();}
+function renderMemo(){
+  const el=document.getElementById('memoList');
+  if(!memos.length){el.innerHTML=`<div class="memo-empty">📋<br>メモはまだありません</div>`;return;}
+  el.innerHTML=[...memos].reverse().map(m=>`<div class="memo-card">
+    <button class="memo-del" onclick="delMemo('${m.id}')">×</button>
+    <div class="memo-card-text">${esc(m.text)}</div>
+    ${m.url?`<div class="memo-card-url">${m.url}</div>`:''}
+    <div class="memo-card-date">${m.date}</div>
+  </div>`).join('');
+}
+function addMemo(){
+  const text=document.getElementById('memoText').value.trim(),url=document.getElementById('memoUrl').value.trim();
+  if(!text&&!url)return;
+  const d=new Date();
+  memos.push({id:uid(),text,url,date:`${d.getMonth()+1}/${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`});
+  save();document.getElementById('memoText').value='';document.getElementById('memoUrl').value='';renderMemo();
+}
+function delMemo(id){memos=memos.filter(m=>m.id!==id);save();renderMemo();}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+document.querySelectorAll('.tab').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    const pg=b.dataset.page;
+    document.getElementById('page-'+pg).classList.add('active');
+    document.getElementById('fabBtn').style.display=pg==='today'?'flex':'none';
+    if(pg==='record')renderCal();
+    if(pg==='memo')renderMemo();
+  });
+});
+function openSheet(){
+  document.getElementById('ov').classList.add('open');
+  document.getElementById('iName').value='';document.getElementById('iNote').value='';
+  selFreq='daily';catManageOpen=false;
+  document.getElementById('catManagePanel').style.display='none';
+  renderCatChips();
+}
+function closeSheet(){document.getElementById('ov').classList.remove('open');}
+function handleOv(e){if(e.target===document.getElementById('ov'))closeSheet();}
+function addTask(){
+  const n=document.getElementById('iName').value.trim();
+  if(!n){document.getElementById('iName').style.borderColor='var(--acc)';setTimeout(()=>document.getElementById('iName').style.borderColor='',1200);return;}
+  tasks.push({id:uid(),name:n,note:document.getElementById('iNote').value.trim(),freq:selFreq});
+  save();closeSheet();renderToday();
+}
+function toggleCatManage(){
+  catManageOpen=!catManageOpen;
+  document.getElementById('catManagePanel').style.display=catManageOpen?'block':'none';
+  if(catManageOpen){renderEmojiPicker();renderCatManageList();renderCatChips();}
+}
+function renderEmojiPicker(){
+  document.getElementById('emojiPicker').innerHTML=EMOJIS.map(e=>
+    `<button class="cat-emoji-btn${e===selEmoji?' sel-e':''}" onclick="pickEmoji('${e}')">${e}</button>`
+  ).join('');
+}
+function pickEmoji(e){selEmoji=e;renderEmojiPicker();}
+function renderCatChips(){
+  document.getElementById('catChipGrid').innerHTML=categories.map(c=>
+    `<button class="cat-chip${c.id===selFreq?' sel':''}" onclick="pickCat('${c.id}')">
+      <span class="chip-icon">${c.icon}</span>${c.label.replace('の家事','')}
+    </button>`
+  ).join('');
+}
+function pickCat(id){selFreq=id;renderCatChips();}
+function renderCatManageList(){
+  const customs=categories.filter(c=>!c.fixed);
+  document.getElementById('catManageList').innerHTML=customs.length
+    ?customs.map(c=>`<div class="cat-manage-item">
+        <span class="cmi-icon">${c.icon}</span>
+        <span class="cmi-name">${c.label}</span>
+        <button class="cmi-del" onclick="delCategory('${c.id}')">🗑</button>
+      </div>`).join('')
+    :`<div style="font-size:12px;color:var(--mg);text-align:center;padding:10px">カスタムカテゴリはまだありません</div>`;
+}
+function addCategory(){
+  const name=document.getElementById('newCatName').value.trim();
+  if(!name)return;
+  const id='cat_'+uid();
+  categories.push({id,label:name+'の家事',icon:selEmoji,hc:'ch-custom',nc:'cn-custom',bg:'#FFF3D8',col:'#8A6A1A',fixed:false});
+  catOpen[id]=true;save();
+  document.getElementById('newCatName').value='';
+  renderCatManageList();renderCatChips();
+}
+function delCategory(id){
+  if(tasks.some(t=>t.freq===id)){alert('このカテゴリには家事が登録されています。先に家事を削除してください。');return;}
+  categories=categories.filter(c=>c.id!==id);
+  if(selFreq===id)selFreq='daily';
+  save();renderCatManageList();renderCatChips();
+}
+function initSwipe(){
+  document.querySelectorAll('.tw').forEach(w=>{
+    if(w._si)return;w._si=true;
+    let sx=0,cx=0,dr=false;
+    const c=w.querySelector('.tc2');
+    w.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;dr=true;cx=0;},{passive:true});
+    w.addEventListener('touchmove',e=>{if(!dr)return;cx=Math.min(0,e.touches[0].clientX-sx);c.style.transform=`translateX(${cx}px)`;c.style.transition='none';},{passive:true});
+    w.addEventListener('touchend',()=>{
+      if(!dr)return;dr=false;c.style.transition='';
+      if(cx<-60){const raw=c.id.slice(1),id=raw.replace('_'+todayKey,'');c.style.transform='translateX(-100%)';setTimeout(()=>{tasks=tasks.filter(t=>t.id!==id);save();renderToday();},220);}
+      else c.style.transform='translateX(0)';cx=0;
+    });
+  });
+}
+load();renderToday();
+</script>
+</body>
+</html>
